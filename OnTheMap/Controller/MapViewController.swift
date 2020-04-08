@@ -14,18 +14,44 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     
     @IBOutlet weak var StudentLocationMap: MKMapView!
     var annotations = [MKPointAnnotation]()
+    @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
     
     override func viewWillAppear(_ animated: Bool){
-        
-        self.LoadDataPoints()
+        self.refreshButtonList()
+  
+    }
+//    Adds the buttons to the top of the view controller
+    override func viewDidLoad() {
+        let barButtonItemAddLoc = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonPressed))
+        let refreshButtonItemAddLoc = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(refreshButtonList))
+        navigationItem.rightBarButtonItems = [barButtonItemAddLoc, refreshButtonItemAddLoc]
     }
     
-    override func viewDidLoad(){
+    @objc func addButtonPressed() {
+        let addLocVC = storyboard!.instantiateViewController(withIdentifier: "AddLocationViewController")  as! AddLocationViewController
+        navigationController?.pushViewController(addLocVC, animated: true)
+    }
+//    Function when the refresh button is pressed to reload all the data points.
+    @objc func refreshButtonList() {
         
-        
+                self.setWorkingAnimation(animate: true)
+                self.StudentLocationMap.removeAnnotations(annotations)
+                self.LoadDataPoints()
     }
     
-    
+    func setWorkingAnimation(animate: Bool) {
+        if animate
+        {
+            loadingIndicator.startAnimating()
+        }
+        else {
+            DispatchQueue.main.async {
+          
+                self.loadingIndicator.stopAnimating()
+            }
+        }
+    }
+//    Function to use the network request to get the locations of all the students.
     func LoadDataPoints() {
         UdacityClient.getStudentLocation{ (data, error) in
             guard let data = data else {
@@ -54,14 +80,14 @@ class MapViewController: UIViewController, MKMapViewDelegate {
             
                 print(self.annotations)
             }
-           
+            self.setWorkingAnimation(animate: false)
             self.StudentLocationMap.addAnnotations(self.annotations)
         }
         
         
     }
     
-
+//  Function used to create all the annotaitons.
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
            
            let reuseId = "pin"
@@ -72,7 +98,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
            {
                pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reuseId)
                pinView!.canShowCallout = true
-               pinView!.pinTintColor = .cyan
+               pinView!.pinTintColor = .red
                pinView!.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
            }
            
@@ -83,7 +109,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
            
            return pinView
        }
-    
+//    Used to add the subtitles to the annotations.
       func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl)
        {
            if control == view.rightCalloutAccessoryView
@@ -95,11 +121,5 @@ class MapViewController: UIViewController, MKMapViewDelegate {
            }
        }
 
-    
-    override func reloadInputViews()
-    {
-        LoadDataPoints()
-        //print(loadDataPoints())
-    }
-    
 }
+

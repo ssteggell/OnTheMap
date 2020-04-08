@@ -26,10 +26,8 @@ struct Student: Codable {
     let objectId: String?
     let uniqueKey: String?
     let updatedAt: String?
-//
-//    var fullName: String {
-//        return "\(firstName) \(lastName)"
-//    }
+    let createdAt: String?
+
 }
 
 class StudentModel {
