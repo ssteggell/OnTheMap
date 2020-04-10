@@ -165,9 +165,31 @@ class UdacityClient {
         
         return isValidated
     }
+    
+    class func deleteSession(completion:@escaping () -> Void) {
+        
+        var request = URLRequest(url: URL(string: "https://onthemap-api.udacity.com/v1/session")!)
+        request.httpMethod = "DELETE"
+        var xsrfCookie: HTTPCookie? = nil
+        let sharedCookieStorage = HTTPCookieStorage.shared
+        for cookie in sharedCookieStorage.cookies! {
+          if cookie.name == "XSRF-TOKEN" { xsrfCookie = cookie }
+        }
+        if let xsrfCookie = xsrfCookie {
+          request.setValue(xsrfCookie.value, forHTTPHeaderField: "X-XSRF-TOKEN")
+        }
+       let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                              Auth.sessionId = ""
+                                completion()
+                            }
+                        task.resume()
+                  
+              }
+    
+    
+    
 //    Task for get request, following the UDACITY instructions to skip the first 5 characters.
-    @discardableResult class func taskForGETRequest<ResponseType: Decodable>(extraCharFlag: Bool,url:URL, responseType: ResponseType.Type,completion: @escaping(ResponseType?,Error?)->Void) -> URLSessionTask
-    {
+    @discardableResult class func taskForGETRequest<ResponseType: Decodable>(extraCharFlag: Bool,url:URL, responseType: ResponseType.Type,completion: @escaping(ResponseType?,Error?)->Void) -> URLSessionTask {
         let task = URLSession.shared.dataTask(with: url) { data, response, error in
             guard var data = data else
             {
@@ -226,11 +248,11 @@ class UdacityClient {
        {
            var request = URLRequest(url: url)
            request.httpMethod = "POST"
-           if acceptIncludeFlag == true
+           if acceptIncludeFlag
            {
                request.addValue("application/json", forHTTPHeaderField: "Accept")
            }
-           if contentTypeIncludeFlag == true
+           if contentTypeIncludeFlag
            {
                request.addValue("application/json", forHTTPHeaderField: "Content-Type")
            }

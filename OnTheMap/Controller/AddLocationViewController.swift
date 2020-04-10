@@ -34,7 +34,7 @@ class AddLocationViewController: UIViewController, UINavigationControllerDelegat
     @IBAction func findLocation(_ sender: Any) {
         
         print("Find Location Button Pressed")
-        self.setWorkingAnimation(animate: true)
+//        self.setWorkingAnimation(animate: true)
         if self.locationTextField.text == "" {
              showLoginFailure(message: "THE ADDRESS CANNOT BE BLANK.  PLEASE FILL IN CITY / STATE", titleVal: "INVALID ADDRESS")
                 return
@@ -55,6 +55,7 @@ class AddLocationViewController: UIViewController, UINavigationControllerDelegat
             return
         }
         print("location and url validated")
+        self.setWorkingAnimation(animate: true)
         if UdacityClient.validateAddressEntered(address: self.locationTextField.text ?? "", completion: self.HandleLocationCheckResponse(locationExists:error:)) {
         }
     }

@@ -12,9 +12,13 @@ import UIKit
 extension UIViewController {
     
     @IBAction func logoutTapped (_ sender: UIBarButtonItem){
-        
-        UdacityClient.Auth.sessionId = ""
-        self.dismiss(animated: true, completion: nil)
+        UdacityClient.deleteSession {
+            DispatchQueue.main.async {
+                self.dismiss(animated: true, completion: nil)
+                print("Session ID: \(UdacityClient.Auth.sessionId)")
+            }
+        }
     }
 }
+
 

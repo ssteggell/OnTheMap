@@ -11,7 +11,7 @@ import UIKit
 
 
 class StudentTableViewController: UIViewController {
-  
+    
     
     @IBOutlet var tableViewMap: UITableView!
     
@@ -19,46 +19,41 @@ class StudentTableViewController: UIViewController {
         
         let barButtonItemAddLoc = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonPressed))
         let refreshButtonItemAddLoc = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(refreshButtonList))
-         navigationItem.rightBarButtonItems = [barButtonItemAddLoc, refreshButtonItemAddLoc]
-       
+        navigationItem.rightBarButtonItems = [barButtonItemAddLoc, refreshButtonItemAddLoc]
+        
         UdacityClient.getStudentLocation{ (data, error) in
-        guard let data = data else {
-            
-            
-            return
+            guard let data = data else {
+                return
             }
             StudentModel.studentList = data
-             DispatchQueue.main.async {
-            self.tableViewMap.reloadData()
+            DispatchQueue.main.async {
+                self.tableViewMap.reloadData()
             }
         }
-    
     }
     
+    @objc func addButtonPressed() {
+        let addLocVC = storyboard!.instantiateViewController(withIdentifier: "AddLocationViewController")  as! AddLocationViewController
+        navigationController?.pushViewController(addLocVC, animated: true)
+    }
     
-    @objc func addButtonPressed()
-       {
-           let addLocVC = storyboard!.instantiateViewController(withIdentifier: "AddLocationViewController")  as! AddLocationViewController
-           navigationController?.pushViewController(addLocVC, animated: true)
-           
-       }
     @objc func refreshButtonList() {
-           UdacityClient.getStudentLocation{ (data, error) in
-               guard let data = data else {
-                   return
-                   }
-                   StudentModel.studentList = data
-                    DispatchQueue.main.async {
-                   self.tableViewMap.reloadData()
-                   }
-               }
+        UdacityClient.getStudentLocation{ (data, error) in
+            guard let data = data else {
+                return
+            }
+            StudentModel.studentList = data
+            DispatchQueue.main.async {
+                self.tableViewMap.reloadData()
+            }
+        }
     }
 }
 
 extension StudentTableViewController: UITableViewDataSource, UITableViewDelegate {
-   
     
-//    Pulls the information from the API and organizes into the table view.
+    
+    //    Pulls the information from the API and organizes into the table view.
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
     {
         print(StudentModel.studentList.count)
@@ -72,7 +67,7 @@ extension StudentTableViewController: UITableViewDataSource, UITableViewDelegate
         let studentVals = StudentModel.studentList
         cell.name?.text =  studentVals[indexPath.row].firstName + " " + studentVals[indexPath.row].lastName
         cell.url?.text = studentVals[indexPath.row].mediaURL
-      
+        
         return cell
     }
     func numberOfSections(in tableView: UITableView) -> Int {

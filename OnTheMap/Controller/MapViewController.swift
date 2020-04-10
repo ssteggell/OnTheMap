@@ -18,9 +18,9 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     
     override func viewWillAppear(_ animated: Bool){
         self.refreshButtonList()
-  
+        
     }
-//    Adds the buttons to the top of the view controller
+    //    Adds the buttons to the top of the view controller
     override func viewDidLoad() {
         let barButtonItemAddLoc = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonPressed))
         let refreshButtonItemAddLoc = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(refreshButtonList))
@@ -31,12 +31,12 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         let addLocVC = storyboard!.instantiateViewController(withIdentifier: "AddLocationViewController")  as! AddLocationViewController
         navigationController?.pushViewController(addLocVC, animated: true)
     }
-//    Function when the refresh button is pressed to reload all the data points.
+    //    Function when the refresh button is pressed to reload all the data points.
     @objc func refreshButtonList() {
         
-                self.setWorkingAnimation(animate: true)
-                self.StudentLocationMap.removeAnnotations(annotations)
-                self.LoadDataPoints()
+        self.setWorkingAnimation(animate: true)
+        StudentLocationMap.removeAnnotations(StudentLocationMap.annotations)
+        self.LoadDataPoints()
     }
     
     func setWorkingAnimation(animate: Bool) {
@@ -46,16 +46,21 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         }
         else {
             DispatchQueue.main.async {
-          
+                
                 self.loadingIndicator.stopAnimating()
             }
         }
     }
-//    Function to use the network request to get the locations of all the students.
+    //    Function to use the network request to get the locations of all the students.
     func LoadDataPoints() {
         UdacityClient.getStudentLocation{ (data, error) in
             guard let data = data else {
                 print ("Unable to load data points")
+                let errorAlert = UIAlertController(title: "Error", message: "Unable to load data points", preferredStyle: .alert)
+                    errorAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: {_ in
+                                return
+                            }))
+                    self.present(errorAlert, animated: true, completion: nil)
                 return
             }
             
@@ -77,8 +82,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
                 annotation.title = "\(firstName) \(lastName)"
                 annotation.subtitle = mediaURL
                 self.annotations.append(annotation)
-            
-                print(self.annotations)
+                
             }
             self.setWorkingAnimation(animate: false)
             self.StudentLocationMap.addAnnotations(self.annotations)
@@ -87,39 +91,38 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         
     }
     
-//  Function used to create all the annotaitons.
+    //  Function used to create all the annotaitons.
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-           
-           let reuseId = "pin"
-           
-           var pinView = mapView.dequeueReusableAnnotationView(withIdentifier: reuseId) as? MKPinAnnotationView
-           
-           if pinView == nil
-           {
-               pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reuseId)
-               pinView!.canShowCallout = true
-               pinView!.pinTintColor = .red
-               pinView!.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
-           }
-           
-           else
-           {
-               pinView!.annotation = annotation
-           }
-           
-           return pinView
-       }
-//    Used to add the subtitles to the annotations.
-      func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl)
-       {
-           if control == view.rightCalloutAccessoryView
-           {
-               if let toOpen = view.annotation?.subtitle!
-               {
-                   UIApplication.shared.open(URL(string: toOpen)! , options: [:], completionHandler: nil)
-               }
-           }
-       }
-
+        
+        let reuseId = "pin"
+        
+        var pinView = mapView.dequeueReusableAnnotationView(withIdentifier: reuseId) as? MKPinAnnotationView
+        
+        if pinView == nil {
+            pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reuseId)
+            pinView!.canShowCallout = true
+            pinView!.pinTintColor = .red
+            pinView!.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
+        }
+            
+        else
+        {
+            pinView!.annotation = annotation
+        }
+        
+        return pinView
+    }
+    //    Used to add the subtitles to the annotations.
+    func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl)
+    {
+        if control == view.rightCalloutAccessoryView
+        {
+            if let toOpen = view.annotation?.subtitle!
+            {
+                UIApplication.shared.open(URL(string: toOpen)! , options: [:], completionHandler: nil)
+            }
+        }
+    }
+    
 }
 

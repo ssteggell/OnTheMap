@@ -9,7 +9,7 @@
 import UIKit
 
 class LoginViewController: UIViewController {
-
+    
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
     @IBOutlet weak var loginButton: UIButton!
@@ -17,50 +17,50 @@ class LoginViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         
-      emailTextField.text = ""
-      passwordTextField.text = ""
+        emailTextField.text = ""
+        passwordTextField.text = ""
         
     }
     
     func setWorkingAnimation(animate: Bool) {
-    if animate
-    {
-        loginLoadingIndicator.startAnimating()
-    }
-    else {
-        loginLoadingIndicator.stopAnimating()
-    }
+        if animate
+        {
+            loginLoadingIndicator.startAnimating()
+        }
+        else {
+            loginLoadingIndicator.stopAnimating()
+        }
     }
     
-//  Link to take you to Safari to Sign up
+    //  Link to take you to Safari to Sign up
     @IBAction func signUpLink(_ sender: UIButton) {
         print("LAUNCH UDACITY SIGNUP")
         UIApplication.shared.open(UdacityClient.Endpoints.signUp.url , options: [:], completionHandler: nil)
         
     }
-//    Function when the user types in their information and taps Login
+    //    Function when the user types in their information and taps Login
     @IBAction func loginTapped(_ sender: UIButton) {
         self.setWorkingAnimation(animate: true)
         getLoginInfo()
     }
-//  Pulls the information from the boxes and plugs into the login request
-        func getLoginInfo() {
-            UdacityClient.login(email: self.emailTextField.text ?? "" , password: self.passwordTextField.text ?? "", completion: self.handleLoginResponse(success:error:))
+    //  Pulls the information from the boxes and plugs into the login request
+    func getLoginInfo() {
+        UdacityClient.login(email: self.emailTextField.text ?? "" , password: self.passwordTextField.text ?? "", completion: self.handleLoginResponse(success:error:))
+    }
+    
+    func handleLoginResponse(success: Bool, error: Error?) {
+        if success {
+            getUserName()
+            self.setWorkingAnimation(animate: false)
+            self.performSegue(withIdentifier: "completeLogin", sender: nil)
+        }
+        else {
+            showLoginFailure(message: "Invalid Email or Password, Please Re-enter")
+            print("Login Failed")
         }
         
-        func handleLoginResponse(success: Bool, error: Error?) {
-            if success {
-                getUserName()
-                self.setWorkingAnimation(animate: false)
-                self.performSegue(withIdentifier: "completeLogin", sender: nil)
-            }
-            else {
-                showLoginFailure(message: "Invalid Email or Password, Please Re-enter")
-                print("Login Failed")
-            }
-            
-        }
-//    Used to get the name of the user, with this API it is randomly generated.
+    }
+    //    Used to get the name of the user, with this API it is randomly generated.
     func getUserName() -> Void {
         UdacityClient.getUserInfo(userKey: UdacityClient.Auth.userKey, completion: self.getUserNameHelper(success:error:))
         
@@ -74,14 +74,16 @@ class LoginViewController: UIViewController {
         }
         
     }
-//    Login failure message.
+    //    Login failure message.
     func showLoginFailure(message: String) {
-         let alertVC = UIAlertController(title: "Login Failed", message: message, preferredStyle: .alert)
-         alertVC.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-         show(alertVC, sender: nil)
-     }
+        let alertVC = UIAlertController(title: "Login Failed", message: message, preferredStyle: .alert)
+        alertVC.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        show(alertVC, sender: nil)
+    }
 }
 
+
+//Below code used for reference to create the login function
 //        UdacityClient.login(email: emailTextField.text!, password: passwordTextField.text!) {(successful, error) in
 ////            DispatchQueue.main.async {
 //                self.setWorkingAnimation(animate: true)
